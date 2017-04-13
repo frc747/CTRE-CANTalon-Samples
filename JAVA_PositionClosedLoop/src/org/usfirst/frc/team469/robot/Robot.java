@@ -17,16 +17,16 @@
  */
 package org.usfirst.frc.team469.robot;
 import com.ctre.CANTalon;
+import com.ctre.CANTalon.FeedbackDevice;
+import com.ctre.CANTalon.TalonControlMode;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Joystick.AxisType;
-import com.ctre.CANTalon.FeedbackDevice;
-import com.ctre.CANTalon.StatusFrameRate;
-import com.ctre.CANTalon.TalonControlMode;
 
 public class Robot extends IterativeRobot {
   
-	CANTalon _talon = new CANTalon(0);	
+	CANTalon _talon = new CANTalon(2);	
 	Joystick _joy = new Joystick(0);	
 	StringBuilder _sb = new StringBuilder();
 	int _loops = 0;
@@ -36,14 +36,14 @@ public class Robot extends IterativeRobot {
 	
 	public void robotInit() {
 		/* lets grab the 360 degree position of the MagEncoder's absolute position */
-		int absolutePosition = _talon.getPulseWidthPosition() & 0xFFF; /* mask out the bottom12 bits, we don't care about the wrap arounds */
+		//int absolutePosition = _talon.getPulseWidthPosition() & 0xFFF; /* mask out the bottom12 bits, we don't care about the wrap arounds */
         /* use the low level API to set the quad encoder signal */
-        _talon.setEncPosition(absolutePosition);
+        //_talon.setEncPosition(absolutePosition);
         
         /* choose the sensor and sensor direction */
-        _talon.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
+        _talon.setFeedbackDevice(FeedbackDevice.QuadEncoder);
         _talon.reverseSensor(false);
-        //_talon.configEncoderCodesPerRev(XXX), // if using FeedbackDevice.QuadEncoder
+        _talon.configEncoderCodesPerRev(250); // if using FeedbackDevice.QuadEncoder
         //_talon.configPotentiometerTurns(XXX), // if using FeedbackDevice.AnalogEncoder or AnalogPot
 
         /* set the peak and nominal outputs, 12V means full */
@@ -56,12 +56,23 @@ public class Robot extends IterativeRobot {
         _talon.setAllowableClosedLoopErr(0); /* always servo */
         /* set closed loop gains in slot0 */
         _talon.setProfile(0);
-        _talon.setF(0.0);
-        _talon.setP(0.1);
-        _talon.setI(0.0); 
-        _talon.setD(0.0);    
+        // Peanut Left
+//        _talon.setP(8.192);
+//        _talon.setI(0.0);
+//        _talon.setD(81.92); 
+//        _talon.setF(0.0);    
+        // Peanut Right
+        _talon.setP(0);
+        _talon.setI(0.0);
+        _talon.setD(0); 
+        _talon.setF(0.0);    
 
 	}
+	
+	public void teleopInit() {
+		_talon.setPosition(0);
+	}
+	
     /**
      * This function is called periodically during operator control
      */
@@ -79,7 +90,7 @@ public class Robot extends IterativeRobot {
         /* on button1 press enter closed-loop mode on target position */
         if(!_lastButton1 && button1) {
         	/* Position mode - button just pressed */
-        	targetPositionRotations = leftYstick * 50.0; /* 50 Rotations in either direction */
+        	targetPositionRotations = 50.0; /* 50 Rotations in either direction */
         	_talon.changeControlMode(TalonControlMode.Position);
         	_talon.set(targetPositionRotations); /* 50 rotations in either direction */
 
